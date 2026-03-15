@@ -2,6 +2,7 @@ import logging
 import aiohttp
 import aiohttp_jinja2
 import jinja2
+import ssl
 
 from aiohttp import web
 from aiohttp.web import StaticResource as StaticRoute
@@ -82,9 +83,21 @@ class HttpRequestHandler:
         )
         middleware.setup_middlewares(app)
 
+        #set ssl context if TLS is enabled
+        ssl_context = None
+        if self.run_args.tls_enabled:
+            ssl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+            ssl_context.load_cert_chain(
+            certfile=self.run_args.tls_cert_file,
+            keyfile=self.run_args.tls_key_file
+            )
+
         self.runner = web.AppRunner(app)
         await self.runner.setup()
-        site = web.TCPSite(self.runner, self.run_args.host_ip, self.run_args.port)
+        site = web.TCPSite(self.runner, 
+                           self.run_args.host_ip, 
+                           self.run_args.port,
+                           ssl_context=ssl_context)
 
         await site.start()
         names = sorted(str(s.name) for s in self.runner.sites)

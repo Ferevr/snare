@@ -147,6 +147,10 @@ if __name__ == '__main__':
     parser.add_argument("--server-header", help="set server-header", default=None)
     parser.add_argument("--no-dorks", help="disable the use of dorks", type=str_to_bool,  default=True)
     parser.add_argument("--path", help="path to save the page to be cloned", required=False, default='/opt/')
+    parser.add_argument("--tls-enabled", type=str_to_bool, help="enable TLS for the server", default=False)
+    parser.add_argument("--tls-cert-file", default=None, help="path to TLS certificate file")
+    parser.add_argument("--tls-key-file", default=None, help="path to TLS key file")
+
 
     args = parser.parse_args()
     base_path = os.path.join(args.path, 'snare')

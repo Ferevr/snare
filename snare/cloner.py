@@ -5,6 +5,7 @@ import asyncio
 import hashlib
 import json
 import re
+from urllib import response
 import aiohttp
 import cssutils
 import yarl
@@ -157,10 +158,15 @@ class Cloner(object):
             data = None
             content_type = None
             try:
-                response = await session.get(current_url, headers={"Accept": "text/html"}, timeout=10.0)
+                response = await session.get(current_url, headers={"Accept": "text/html"}, timeout=60.0)
                 headers = self.get_headers(response)
                 content_type = response.content_type
-                data = await response.read()
+                data = b""
+                try:
+                    async for chunk in response.content.iter_chunked(1024):
+                        data += chunk
+                except aiohttp.client_exceptions.ClientPayloadError as e:
+                    self.logger.error("Chunked payload interrupted: %s", e)
             except (aiohttp.ClientError, asyncio.TimeoutError) as client_error:
                 self.logger.error(client_error)
             else:

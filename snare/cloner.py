@@ -158,7 +158,7 @@ class Cloner(object):
             data = None
             content_type = None
             try:
-                response = await session.get(current_url, headers={"Accept": "text/html"}, timeout=60.0)
+                response = await session.get(current_url, headers={"Accept": "text/html"}, timeout=500.0)
                 headers = self.get_headers(response)
                 content_type = response.content_type
                 data = b""
